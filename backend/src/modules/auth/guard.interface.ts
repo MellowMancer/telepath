@@ -3,7 +3,7 @@ export interface JwtPayload {
   userId: string;
 
   /** The user's role (e.g., 'admin', 'user') */
-  role: string;
+  role?: string;
 
   /** 
    * It is highly recommended to include the username too, 

@@ -12,7 +12,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Returns 200 instead of 201 Created
+  @HttpCode(HttpStatus.OK) // Returns 200 instead
   async login(@Body() body: any) {
     return this.authService.login(body.username, body.password);
   }
