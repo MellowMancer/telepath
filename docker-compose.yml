@@ -1,11 +1,28 @@
 services:
   mongodb:
     image: mongo:latest
-    container_name: chat_mongo
+    container_name: telepath_mongo
+    # Starts mongo with replica set named 'rs0'
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
+    healthcheck:
+      test: |
+        mongosh --port 27017 --quiet --eval "
+        try {
+          rs.status().ok
+        } catch (e) {
+          rs.initiate({
+            _id: 'rs0',
+            members: [{ _id: 0, host: 'localhost:27017' }]
+          }).ok
+        }"
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - mongo_data:/data/db
+
 
   redis:
     image: redis:alpine

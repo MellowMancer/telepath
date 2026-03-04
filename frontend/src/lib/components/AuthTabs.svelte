@@ -1,5 +1,4 @@
 <script>
-	import { goto } from '$app/navigation';
 	import Tab from '$lib/components/Tab.svelte';
 	let { activeTab } = $props();
 </script>

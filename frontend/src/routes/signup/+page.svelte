@@ -6,6 +6,7 @@
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
     import Footer from '$lib/components/Footer.svelte';
 	import { themeState } from '$lib/theme.svelte';
+    import { goto } from '$app/navigation';
 
 	let username = $state('');
 	let password = $state('');
@@ -13,8 +14,34 @@
 	let error = $state('');
 
 	async function handleSignup() {
-		// Your fetch logic here...
-		console.log("Signing Up...");
+		error = '';
+
+		// 1. Basic Validation
+		if (password !== confirmPassword) {
+			error = 'Passkeys do not match';
+			return;
+		}
+
+		try {
+			// 2. Call NestJS Backend
+			const res = await fetch('http://localhost:4000/auth/signup', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username, password })
+			});
+
+			const data = await res.json();
+
+			if (res.ok) {
+				// 3. Redirect to Login
+				goto('/login');
+			} else {
+				// 4. Error: Show message from NestJS (e.g. "Username already taken")
+				error = data.message || 'Signup failed';
+			}
+		} catch (e) {
+			error = 'Server is unreachable, lol developer messed up';
+		}
 	}
 </script>
 
