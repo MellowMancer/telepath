@@ -10,7 +10,9 @@ export interface ChatMessage {
     senderId: string;
     roomId: string;
     createdAt: string;
-    sender: string;
+    sender: {
+        username: string;
+    };
 }
 
 export interface ChatRoom {

@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '@src/config/prisma/prisma.service';
 import { ChatService } from './chat.service';
 
 @WebSocketGateway({
@@ -25,6 +26,7 @@ export class ChatGateway implements OnGatewayConnection {
     private chatService: ChatService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private prisma: PrismaService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -42,15 +44,21 @@ export class ChatGateway implements OnGatewayConnection {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = await this.jwtService.verifyAsync(token, { secret });
 
+      // Verify user still exists in database
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.userId },
+      });
+
+      if (!user) {
+        throw new WsException('User not found');
+      }
+
       // Attach user info to socket for later use
       client.data.user = {
-        userId: payload.userId,
-        username: payload.username,
+        userId: user.id,
+        username: user.username,
       };
-
-      console.log(`WebSocket client connected: ${payload.username} (${payload.userId})`);
     } catch (error) {
-      console.error('WebSocket authentication failed:', error.message);
       client.disconnect();
     }
   }

@@ -17,18 +17,19 @@ model User {
   id              String       @id @default(auto()) @map("_id") @db.ObjectId
   username        String       @unique
   password        String
-  rooms           Room[]       // Relation: Rooms created by this user
-  messages        Message[]    // Relation: Messages sent by this user
-  roomMemberships RoomMember[] // Relation: Rooms this user is a member of
+  rooms           Room[]       // Rooms created by this user
+  messages        Message[]    // Messages sent by this user
+  roomMemberships RoomMember[] // Rooms this user is a member of
 }
 
 model Room {
   id        String       @id @default(auto()) @map("_id") @db.ObjectId
   name      String       @unique
+  code      String       // 4-digit access code (not unique)
   creatorId String       @db.ObjectId
   creator   User         @relation(fields: [creatorId], references: [id])
   messages  Message[]
-  members   RoomMember[] // Relation: Members in this room
+  members   RoomMember[] // Members in this room
   createdAt DateTime     @default(now())
 }
 
