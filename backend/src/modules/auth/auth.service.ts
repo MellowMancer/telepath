@@ -45,15 +45,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid username or password');
     }
 
-    const payload: JwtPayload = { 
-        userId: user.id, 
-        username: user.username,
+    const payload: JwtPayload = {
+      userId: user.id,
+      username: user.username,
     };
-
-    console.log("log in successful")
-    console.log(user.id)
-    console.log(user.username)
-    console.log(this.jwtService.sign(payload))
 
     return {
       access_token: this.jwtService.sign(payload),

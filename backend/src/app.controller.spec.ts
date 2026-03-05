@@ -16,7 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Telepath API is running"', () => {
-      expect(appController.getHealth).toBe('Telepath API is running');
+      expect(appController.getHealth()).toBe('Telepath API is running');
     });
   });
 });
