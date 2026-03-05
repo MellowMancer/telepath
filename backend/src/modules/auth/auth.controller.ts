@@ -1,19 +1,20 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { SignupDto } from './dto/signup.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  async signup(@Body() body: any) {
-    // In a real app, use a DTO (Data Transfer Object) for validation
-    return this.authService.signup(body.username, body.password);
+  async signup(@Body() signupDto: SignupDto) {
+    return this.authService.signup(signupDto.username, signupDto.password);
   }
 
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Returns 200 instead
-  async login(@Body() body: any) {
-    return this.authService.login(body.username, body.password);
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto.username, loginDto.password);
   }
 }
