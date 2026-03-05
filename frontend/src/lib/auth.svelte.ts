@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { goto } from '$app/navigation';
-import { API_URL } from './config';
+import { API_URL } from './config.ts';
 
 export const user = writable(null);
 

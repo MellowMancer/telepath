@@ -1,5 +1,5 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Res } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -12,18 +12,10 @@ export class AuthController {
   async signup(@Body() signupDto: SignupDto, @Res() res: Response) {
     const result = await this.authService.signup(signupDto.username, signupDto.password);
 
-    // Set JWT in HTTP-only cookie
-    res.cookie('token', result.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 86400000, // 1 day
-      path: '/',
-    });
-
-    // Return user info without token
-    return res.json({
-      userId: result.userId,
+    // Return success message - user needs to login
+    res.status(HttpStatus.CREATED).json({
+      message: 'Account created successfully. Please login.',
+      userId: result.id,
       username: result.username,
     });
   }
@@ -43,7 +35,7 @@ export class AuthController {
     });
 
     // Return user info without token
-    return res.json({
+    res.json({
       userId: result.userId,
       username: result.username,
     });
@@ -57,6 +49,6 @@ export class AuthController {
       path: '/',
     });
 
-    return res.json({ message: 'Logged out successfully' });
+    res.json({ message: 'Logged out successfully' });
   }
 }

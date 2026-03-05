@@ -57,7 +57,6 @@ export class RoomService {
       data: {
         userId,
         roomId: room.id,
-        role: 'member',
       },
     });
 

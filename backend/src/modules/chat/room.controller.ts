@@ -44,12 +44,11 @@ export class RoomController {
       },
     });
 
-    // Add creator as room member with owner role
+    // Add creator as room member
     await this.prisma.roomMember.create({
       data: {
         userId: req.user.userId,
-        roomId: room.id,
-        role: 'owner',
+        roomId: room.id
       },
     });
 

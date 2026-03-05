@@ -91,8 +91,9 @@
 		await fetchMessages();
 
 		// 2. Connect WebSockets with authentication and auto-reconnection
-		// Cookies are automatically sent by the browser
+		// withCredentials: true enables sending cookies with the connection
 		socket = io(WS_URL, {
+			withCredentials: true,
 			reconnection: true,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
