@@ -2,11 +2,15 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '@src/config/prisma/prisma.service';
 import { JwtPayload } from './guard.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private prisma: PrismaService,
+  ) {
     super({
       // Automatically looks for "Authorization: Bearer <token>"
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -17,11 +21,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   // Passport calls this AFTER the token is verified
   async validate(payload: JwtPayload) {
+    // Verify user still exists in database
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.userId },
+    });
+
+    if (!user) {
+      return null; // Triggers 401 Unauthorized
+    }
+
     // Whatever is returned here is attached to req.user
-    return { 
-        userId: payload.userId, 
-        username: payload.username, 
-        role: payload.role 
+    return {
+      userId: user.id,
+      username: user.username,
     };
   }
 }

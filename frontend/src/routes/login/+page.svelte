@@ -1,14 +1,12 @@
 <script>
-	import BG from '$lib/components/Grid.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import AuthTabs from '$lib/components/AuthTabs.svelte';
 	import ActionButton from '$lib/components/ActionButton.svelte';
-	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-    import Footer from '$lib/components/Footer.svelte';
-	import { themeState } from '$lib/theme.svelte';
+	import PageLayout from '$lib/layouts/PageLayout.svelte';
+	import { UI_TEXT, TYPOGRAPHY, SPACING } from '$lib/constants/index.js';
     import { goto } from '$app/navigation';
-    import { authState } from '$lib/auth.svelte';
-	import { API_URL } from '$lib/config';
+    import { authState, setUser } from '$lib/auth.svelte';
+	import { API_URL } from '$lib/config.js';
 
 	let username = $state('');
 	let password = $state('');
@@ -27,38 +25,34 @@
 			if (res.ok) {
                 localStorage.setItem('token', data.access_token);
                 authState.token = data.access_token;
-                authState.user = { username: data.username, userId: data.userId };
+                setUser({ username: data.username, userId: data.userId });
 				goto('/home');
 			} else {
 				error = data.message || 'Login failed';
 			}
 		} catch (e) {
-			error = 'Server is unreachable. Please check your connection.';
+			error = UI_TEXT.auth.login.errorUnreachable;
 		}
 	}
 </script>
 
-<ThemeToggle />
-
-<BG>
+<PageLayout footerPage={UI_TEXT.footer.pages.login}>
 	<AuthTabs activeTab="login" />
 
 	<div class="flex-1 w-full text-left">
-		<h2 class="text-5xl font-bold mb-12">Login</h2>
-		
+		<h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12">{UI_TEXT.auth.login.title}</h2>
+
 		{#if error}
-			<p class="text-red-500 font-bold mb-4">✕ {error}</p>
+			<p class="text-red-500 font-bold mb-4"> {error}</p>
 		{/if}
 
-		<div class="space-y-6">
-			<Input label="User ID" bind:value={username} placeholder="Guest" />
-			<Input label="Pass Key" type="password" bind:value={password} placeholder="••••" />
+		<div class="space-y-4 sm:space-y-6">
+			<Input label={UI_TEXT.auth.login.userIdLabel} bind:value={username} placeholder={UI_TEXT.auth.login.userIdPlaceholder} />
+			<Input label={UI_TEXT.auth.login.passwordLabel} type="password" bind:value={password} placeholder={UI_TEXT.auth.login.passwordPlaceholder} />
 		</div>
 
-		<div class="mt-12 flex justify-end">
-			<ActionButton label="Go" onclick={handleLogin} />
+		<div class="mt-8 sm:mt-12 flex justify-end">
+			<ActionButton label={UI_TEXT.auth.login.submitButton} onclick={handleLogin} />
 		</div>
 	</div>
-</BG>
-
-<Footer page='Login' themeState={themeState}/>
+</PageLayout>
