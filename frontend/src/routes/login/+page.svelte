@@ -8,6 +8,7 @@
 	import { themeState } from '$lib/theme.svelte';
     import { goto } from '$app/navigation';
     import { authState } from '$lib/auth.svelte';
+	import { API_URL } from '$lib/config';
 
 	let username = $state('');
 	let password = $state('');
@@ -15,8 +16,7 @@
 
 	async function handleLogin() {
 		try {
-			// 2. Call NestJS Backend
-			const res = await fetch('http://localhost:4000/auth/login', {
+			const res = await fetch(`${API_URL}/auth/login`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username, password })
@@ -24,24 +24,16 @@
 
 			const data = await res.json();
 
-    
-    
 			if (res.ok) {
-                // 1. Save the token
                 localStorage.setItem('token', data.access_token);
-                
-                // 2. Update your global state
                 authState.token = data.access_token;
                 authState.user = { username: data.username, userId: data.userId };
-				// 3. Redirect to Home
-                console.log("going home")
 				goto('/home');
 			} else {
-				// 4. Error: Show message from NestJS
 				error = data.message || 'Login failed';
 			}
 		} catch (e) {
-			error = 'Server is unreachable, lol developer messed up';
+			error = 'Server is unreachable. Please check your connection.';
 		}
 	}
 </script>

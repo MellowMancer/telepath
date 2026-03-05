@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { authState, logout } from '$lib/auth.svelte';
 	import { themeState } from '$lib/theme.svelte';
+	import { API_URL } from '$lib/config';
 
 	// Your UI Components
 	import BG from '$lib/components/Grid.svelte';
@@ -10,7 +11,7 @@
 	import ActionButton from '$lib/components/ActionButton.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import Footer from '$lib/components/Footer.svelte';
-	import Row from '$lib/components/Row.svelte'; // We'll use Row for the list
+	import Row from '$lib/components/Row.svelte';
 	import Tab from '$lib/components/Tab.svelte';
 	import { redirect } from '@sveltejs/kit';
 
@@ -22,7 +23,7 @@
 
 	async function fetchRooms() {
 		try {
-			const res = await fetch('http://localhost:4000/rooms', {
+			const res = await fetch(`${API_URL}/rooms/all`, {
 				headers: { Authorization: `Bearer ${authState.token}` }
 			});
 			if (res.ok) rooms = await res.json();
@@ -33,18 +34,26 @@
 
 	async function handleCreateRoom() {
 		if (!newRoomName) return;
-		const res = await fetch('http://localhost:4000/rooms', {
-			method: 'POST',
-			headers: { 
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${authState.token}` 
-			},
-			body: JSON.stringify({ name: newRoomName })
-		});
-		if (res.ok) {
-			newRoomName = '';
-			showCreateModal = false;
-			await fetchRooms();
+		try {
+			const res = await fetch(`${API_URL}/rooms/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${authState.token}`
+				},
+				body: JSON.stringify({ name: newRoomName })
+			});
+
+			if (res.ok) {
+				newRoomName = '';
+				showCreateModal = false;
+				await fetchRooms();
+			} else {
+				const errData = await res.json();
+				alert(errData.message);
+			}
+		} catch (e) {
+			error = "Network initialization failed. Please try again.";
 		}
 	}
 
@@ -69,7 +78,7 @@
 		</div>
 
 		<Tab label='Home' redirectTo='\home' isActiveTab={true}/>
-		<Tab label='Settings' redirectTo="\settings"/>
+		<Tab label='Settings' redirectTo="\settings" isActiveTab={false}/>
         
         <div class="mt-auto">
             <ActionButton label="Disconnect" variant="danger" onclick={logout} />

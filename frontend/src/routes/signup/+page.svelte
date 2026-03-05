@@ -7,6 +7,7 @@
     import Footer from '$lib/components/Footer.svelte';
 	import { themeState } from '$lib/theme.svelte';
     import { goto } from '$app/navigation';
+	import { API_URL } from '$lib/config';
 
 	let username = $state('');
 	let password = $state('');
@@ -16,15 +17,13 @@
 	async function handleSignup() {
 		error = '';
 
-		// 1. Basic Validation
 		if (password !== confirmPassword) {
 			error = 'Passkeys do not match';
 			return;
 		}
 
 		try {
-			// 2. Call NestJS Backend
-			const res = await fetch('http://localhost:4000/auth/signup', {
+			const res = await fetch(`${API_URL}/auth/signup`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username, password })
@@ -33,14 +32,12 @@
 			const data = await res.json();
 
 			if (res.ok) {
-				// 3. Redirect to Login
 				goto('/login');
 			} else {
-				// 4. Error: Show message from NestJS (e.g. "Username already taken")
 				error = data.message || 'Signup failed';
 			}
 		} catch (e) {
-			error = 'Server is unreachable, lol developer messed up';
+			error = 'Server is unreachable. Please check your connection.';
 		}
 	}
 </script>
