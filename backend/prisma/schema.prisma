@@ -14,20 +14,34 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  username String    @unique
-  password String
-  rooms    Room[]    // Relation: Rooms created by this user
-  messages Message[] // Relation: Messages sent by this user
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  username        String       @unique
+  password        String
+  rooms           Room[]       // Relation: Rooms created by this user
+  messages        Message[]    // Relation: Messages sent by this user
+  roomMemberships RoomMember[] // Relation: Rooms this user is a member of
 }
 
 model Room {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String    @unique
-  creatorId String    @db.ObjectId
-  creator   User      @relation(fields: [creatorId], references: [id])
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  name      String       @unique
+  creatorId String       @db.ObjectId
+  creator   User         @relation(fields: [creatorId], references: [id])
   messages  Message[]
-  createdAt DateTime  @default(now())
+  members   RoomMember[] // Relation: Members in this room
+  createdAt DateTime     @default(now())
+}
+
+model RoomMember {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String   @db.ObjectId
+  roomId   String   @db.ObjectId
+  user     User     @relation(fields: [userId], references: [id])
+  room     Room     @relation(fields: [roomId], references: [id])
+  role     String   @default("member") // "owner", "admin", "member"
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, roomId])
 }
 
 model Message {
