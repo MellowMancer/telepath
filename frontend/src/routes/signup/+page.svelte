@@ -24,6 +24,7 @@
 			const res = await fetch(`${API_URL}/auth/signup`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include', // Include cookies in request/response
 				body: JSON.stringify({ username, password })
 			});
 

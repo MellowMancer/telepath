@@ -28,7 +28,7 @@
 	async function fetchMessages() {
 		try {
 			const res = await fetch(`${API_URL}/rooms/${roomId}/messages`, {
-				headers: { Authorization: `Bearer ${authState.token}` }
+				credentials: 'include' // Include cookies
 			});
 			if (res.ok) {
 				messages = await res.json();
@@ -84,14 +84,15 @@
 	}
 
 	onMount(async () => {
-		if (!authState.token) return goto('/login');
+		// Check if user is authenticated
+		if (!authState.user) return goto('/login');
 
 		// 1. Fetch message history
 		await fetchMessages();
 
 		// 2. Connect WebSockets with authentication and auto-reconnection
+		// Cookies are automatically sent by the browser
 		socket = io(WS_URL, {
-			auth: { token: authState.token },
 			reconnection: true,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,

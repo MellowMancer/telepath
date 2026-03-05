@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -8,6 +9,9 @@ async function bootstrap() {
 
   // Security headers
   app.use(helmet());
+
+  // Cookie parser middleware
+  app.use(cookieParser());
 
   // Enable global input validation
   app.useGlobalPipes(new ValidationPipe({

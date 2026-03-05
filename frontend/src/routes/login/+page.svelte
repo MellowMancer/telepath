@@ -17,15 +17,15 @@
 			const res = await fetch(`${API_URL}/auth/login`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include', // Include cookies in request/response
 				body: JSON.stringify({ username, password })
 			});
 
 			const data = await res.json();
 
 			if (res.ok) {
-                localStorage.setItem('token', data.access_token);
-                authState.token = data.access_token;
-                setUser({ username: data.username, userId: data.userId });
+				// Token is now in HTTP-only cookie, store user info
+				setUser({ username: data.username, userId: data.userId });
 				goto('/home');
 			} else {
 				error = data.message || 'Login failed';

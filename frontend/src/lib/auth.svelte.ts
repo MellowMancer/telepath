@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { goto } from '$app/navigation';
+import { API_URL } from './config';
 
 export const user = writable(null);
 
@@ -12,7 +13,7 @@ function getStoredUser() {
 
 export const authState = $state({
     user: getStoredUser() as { username: string; userId: string } | null,
-    token: typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    // Token is now stored in HTTP-only cookies (not accessible to JS)
 });
 
 export function setUser(user: { username: string; userId: string }) {
@@ -22,10 +23,19 @@ export function setUser(user: { username: string; userId: string }) {
     }
 }
 
-export function logout() {
-    localStorage.removeItem('token');
+export async function logout() {
+    try {
+        // Call backend logout endpoint to clear the cookie
+        await fetch(`${API_URL}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include', // Include cookies
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+
+    // Clear local state
     localStorage.removeItem('user');
-    authState.token = null;
     authState.user = null;
     goto('/login');
 }

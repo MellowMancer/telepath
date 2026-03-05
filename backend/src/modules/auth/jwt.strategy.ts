@@ -12,8 +12,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private prisma: PrismaService,
   ) {
     super({
-      // Automatically looks for "Authorization: Bearer <token>"
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // Extract JWT from cookies first, fallback to Authorization header
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        // Primary: Extract from cookies
+        (req) => req.cookies?.token || null,
+        // Fallback: Extract from Authorization Bearer header (for testing/API clients)
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET'),
     });

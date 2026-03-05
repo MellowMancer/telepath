@@ -26,7 +26,7 @@
 	async function fetchRooms() {
 		try {
 			const res = await fetch(`${API_URL}/rooms/all`, {
-				headers: { Authorization: `Bearer ${authState.token}` }
+				credentials: 'include' // Include cookies
 			});
 			if (res.ok) rooms = await res.json();
 		} catch (e) {
@@ -41,8 +41,8 @@
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${authState.token}`
 				},
+				credentials: 'include', // Include cookies
 				body: JSON.stringify({ name: newRoomName })
 			});
 
@@ -79,8 +79,8 @@
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${authState.token}`
 				},
+				credentials: 'include', // Include cookies
 				body: JSON.stringify({ code: roomCode })
 			});
 
@@ -99,10 +99,9 @@
 	}
 
 	onMount(async () => {
-		// Secure the page
-		const token = localStorage.getItem('token');
-		if (!token) return goto('/login');
-		
+		// Check if user is authenticated (now checking authState instead of localStorage)
+		if (!authState.user) return goto('/login');
+
 		await fetchRooms();
 		loading = false;
 	});

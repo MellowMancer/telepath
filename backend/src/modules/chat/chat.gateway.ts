@@ -31,10 +31,25 @@ export class ChatGateway implements OnGatewayConnection {
 
   async handleConnection(client: Socket) {
     try {
-      // Extract token from handshake auth or headers
-      const token =
-        client.handshake.auth?.token ||
-        client.handshake.headers?.authorization?.replace('Bearer ', '');
+      // Extract token from cookies first, then auth object, then Authorization header
+      let token = null;
+
+      // Try to extract from cookies (sent automatically by browser)
+      const cookieHeader = client.handshake.headers.cookie;
+      if (cookieHeader) {
+        const match = cookieHeader.match(/token=([^;]*)/);
+        token = match ? match[1] : null;
+      }
+
+      // Fallback: Extract from Socket.IO auth object (explicit token passing)
+      if (!token) {
+        token = client.handshake.auth?.token;
+      }
+
+      // Fallback: Extract from Authorization header (for API clients/testing)
+      if (!token) {
+        token = client.handshake.headers?.authorization?.replace('Bearer ', '');
+      }
 
       if (!token) {
         throw new WsException('Authentication token not provided');
